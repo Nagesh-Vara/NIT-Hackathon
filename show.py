@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, redirect, url_for, send_from_directory,render_template
+from flask import Flask, request,render_template
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
@@ -7,7 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import requests, json
 import csv
+
 app = Flask(__name__)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -60,7 +62,10 @@ def predict():
     sample_input = [[soiltype, temperature, current_humidity, ph, rainfall]]
     predicted_label = model.predict(sample_input)
     print("Predicted label:", predicted_label[0])
-    return render_template('template.html', filename=predicted_label[0])
+    df3 = pd.read_csv("data/samp.csv")
+    filtered_data = df3[df3['commodity'] == str(predicted_label[0]).capitalize()]
+    sorted_data = filtered_data.sort_values(by='modal_price', ascending=False).head(10)
+    return render_template('template.html', data=sorted_data,filename=predicted_label[0])
 
 
 if __name__ == '__main__':
